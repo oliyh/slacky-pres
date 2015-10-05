@@ -1,0 +1,9 @@
+.github img.logo, .github:hover img.logo {
+    vertical-align: middle;
+    border: 0;
+    background: none;
+}
+
+a.github {
+    font-family: monospace;
+}
