@@ -57,65 +57,109 @@
 				</section>
 
 				<section>
-					<h2>What does it do?</h2>
+					<h2>Slack</h2>
 					<p>
-						Brief introduction and then the html5 embedded video of epic splits or the other one
+						A developer-friendly chat service
 					</p>
-				</section>
-
-        <section>
-					<h2>A REST endpoint for Slack</h2>
-					<p>
-						Slack "Slash" command
-					</p>
-          <pre>
-            <code>
-            The POST data sent along is defined as follows:
-
-            token=gIkuvaNzQIHg97ATvDxqgjtO
-            team_id=T0001
-            team_domain=example
-            channel_id=C2147483705
-            channel_name=test
-            user_id=U2147483697
-            user_name=Steve
-            command=/weather
-            text=94070
-            </code>
-          </pre>
-          <span><a href="https://api.slack.com/slash-commands">https://api.slack.com/slash-commands</a></span>
+          <img class="stretch" src="images/slack-chat.png"/>
           <aside class="notes">
-            I wanted to implement this endpoint but I didn't care how - I just wanted to get started on writing the handler
+            I will firstly introduce Slack briefly for anyone unfamiliar with it.
+            Slack is a chat service which has gained popular adoption among software organisations including Clojurians and JUXT - it feels friendly for developers with markdown-like formatting.
+            Images, videos and other media can be embedded directly into the chat window giving a richer experience.
+            It also has a comprehensive API for third party extensions. Many already exist, for Twitter, Github etc, but one was missing...
+          </aside>
+				</section>
+        
+        <section>
+					<h2>Memes!</h2>
+          <p>
+            <em>an idea, behavior, style, or usage that spreads from person to person within a culture</em>
+          </p>
+          <img src="images/simple-made-complex-meme.png"/>
+          <aside class="notes">
+            We as a team got quite addicted to memes via the Sassy bot in Hipchat, which had a nice simple text-based interface.
+            Slack however had no such feature, so I set out to build one.
           </aside>
 				</section>
 
         <section>
-          <section>
-					  <h2>pedestal-swagger</h2>
-					  <p>
-              Takes care of deserialisation, coercion and related error handling
-					  </p>
-            <pre class="stretch">
-              <code class="hljs" data-trim contenteditable>
-                Code showing a handler next to the schema
-              </code>
-            </pre>
-            <a class="github" href="https://github.com/frankiesardo/pedestal-swagger">
-              <img class="logo" src="images/github.png"/>
-              frankiesardo/pedestal-swagger
-            </a>
-          </section>
-          <section>
-					  <h2>Routing and interceptors</h2>
-            <pre class="stretch">
-              <code class="hljs" data-trim contenteditable>
+					<h2>The Slack "Slash" command</h2>
+          <img src="images/slack-slash-command.png"/>
+          <pre><code>  POST
+
+  token=gIkuvaNzQIHg97ATvDxqgjtO
+  team_id=T0001
+  team_domain=juxt
+  channel_id=C2147483705
+  channel_name=general
+  user_id=U2147483697
+  user_name=frankie
+  command=/meme
+  text=rich hickey | simple | made complex</code></pre>
+          <span><a href="https://api.slack.com/slash-commands">https://api.slack.com/slash-commands</a></span>
+          <aside class="notes">
+            Slack allows you to register a custom command beginning with a slash which will be captured and sent to an HTTP endpoint of your choice.
+            The documentation tells you that the request will look like this one here.
+            I wanted to implement this endpoint but I didn't want to spend time writing a webserver or implementing REST, dealing with JSON deserialisation and error handling - I just wanted to get started on writing the handler.
+          </aside>
+				</section>
+
+        <section>
+          <h2>pedestal-swagger</h2>
+          <p>
+            Deserialisation, coercion and related error handling
+          </p>
+          <div class="col2">
+            <div style="width: 43%">
+              <pre><code class="hljs" data-trim contenteditable>
+  (s/defschema SlackRequest
+ {(req :token)        s/Str
+  (req :team_id)      s/Str
+  (req :team_domain)  s/Str
+  (req :channel_id)   s/Str
+  (req :channel_name) s/Str
+  (req :user_id)      s/Str
+  (req :user_name)    s/Str
+  (req :command)      s/Str
+  (req :text)         s/Str})</code></pre>
+            </div>
+            <div style="width: 57%">
+              <pre><code class="hljs" data-trim contenteditable>
+(swagger/defhandler slack-meme
+ {:summary "Responds asynchonously to 
+            Slash commands from Slack"
+  :parameters {:formData SlackRequest}
+  :responses {200 {:schema MemeUrl}}}
+ [{:keys [form-params] :as request}]
+ 
+ (let [text (:text form-params)]
+   {:status 200
+    :body (meme/generate-meme text)))
+              </code></pre>
+            </div>
+          </div>
+          <a class="github" href="https://github.com/frankiesardo/pedestal-swagger">
+            <img class="logo" src="images/github.png"/>
+            frankiesardo/pedestal-swagger
+          </a>
+          
+          <aside class="notes">
+            This is exactly what I wanted - I define a schema which describes the request I expect, and a handler which expects that schema.
+            No deserialisation, no validation, I can just trust that the data will fit that schema when it hits my handler.
+            Also note it's nicely documented in the code.
+          </aside>
+        </section>
+        
+        <section>
+          <h2>Routing and interceptors</h2>
+          <pre class="stretch"><code class="hljs" data-trim contenteditable>
 (swagger/defroutes api-routes
   {:info {:title "Slacky"
           :description "Memes and more for Slack"
           :externalDocs {:description "Find out more"
                          :url "https://github.com/oliyh/slacky"}
           :version "2.0"}
-   :tags [{:name "memes"
+   :tags [{:name "meme"
            :description "All the memes!"}]}
   [[["/api" ^:interceptors [(swagger/body-params)
                             bootstrap/json-body
@@ -128,11 +172,22 @@
 
      ["/swagger.json" {:get [(swagger/swagger-json)]}]
      ["/*resource" {:get [(swagger/swagger-ui)]}]]]])
-              </code>
-            </pre>
-          </section>
-				</section>
+          </code></pre>
+            
+          <aside class="notes">
+            This is the routing table, with some interceptors and a couple of endpoints provided by pedestal-swagger.
+            These will take care of deserialising, validating and coercing requests for me and ensuring my handler can stay simple and only worry about the happy path.
+          </aside>
+        </section>
 
+        <section>
+					<h2>Swagger UI</h2>
+          <img class="stretch no-border" src="images/swagger-ui.png"/>
+          <aside class="notes">
+            The necessary data for the Swagger UI is generated for us by pedestal-swagger, giving us the super-useful Swagger UI for free!
+          </aside>
+				</section>
+        
         <section>
 					<h2>Authentication interceptor</h2>
 					<p>
