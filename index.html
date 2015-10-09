@@ -46,13 +46,13 @@
 					<h2>Practical Pedestal/Swagger: Slack integration</h2>
           <img style="max-height: 300px" src="images/doge-patterns-useful.jpg"/>
           <p>
-            <a class="github" href="https://github.com/oliyh/slacky">
+            <a class="github" target="_blank" href="https://github.com/oliyh/slacky">
               <img class="logo" src="images/github.png"/>
               oliyh/slacky
             </a>
           </p>
 					<p>
-						<small>Created by <a href="http://oliy.co.uk">Oliver Hine</a> / <a href="http://twitter.com/oliyh">@oliyh</a></small>
+						<small>Created by <a target="_blank" href="http://oliy.co.uk">Oliver Hine</a> / <a target="_blank" href="http://twitter.com/oliyh">@oliyh</a></small>
 					</p>
 				</section>
 
@@ -96,7 +96,7 @@
   user_name=frankie
   command=/meme
   text=rich hickey | simple | made complex</code></pre>
-          <span><a href="https://api.slack.com/slash-commands">https://api.slack.com/slash-commands</a></span>
+          <span><a target="_blank" href="https://api.slack.com/slash-commands">api.slack.com/slash-commands</a></span>
           <aside class="notes">
             Slack allows you to register a custom command beginning with a slash which will be captured and sent to an HTTP endpoint of your choice.
             The documentation tells you that the request will look like this one here.
@@ -138,7 +138,7 @@
               </code></pre>
             </div>
           </div>
-          <a class="github" href="https://github.com/frankiesardo/pedestal-swagger">
+          <a class="github" target="_blank" href="https://github.com/frankiesardo/pedestal-swagger">
             <img class="logo" src="images/github.png"/>
             frankiesardo/pedestal-swagger
           </a>
@@ -185,6 +185,27 @@
           <img class="stretch no-border" src="images/swagger-ui.png"/>
           <aside class="notes">
             The necessary data for the Swagger UI is generated for us by pedestal-swagger, giving us the super-useful Swagger UI for free!
+          </aside>
+				</section>
+        
+        <section>
+					<h2>Meme generation</h2>
+          <img class="stretch no-border" src="images/meme-handling.png"/>
+          <aside class="notes">
+            The MemeCaptain API calls return urls which can be polled until the operation is complete.
+            The meme image is hosted by MemeCaptain so the API returns a url to it.
+            It's complicated enough!
+          </aside>
+				</section>
+        
+        <section>
+					<h2>Responding to Slack</h2>
+					<img class="stretch no-border" src="images/authentication-requirement.png"/>
+          <span><a target="_blank" href="https://api.slack.com/incoming-webhooks">api.slack.com/incoming-webhooks</a></span>
+          <aside class="notes">
+            To write back in to Slack requires an incoming webhook URL unique to the team.
+            To support multiple teams we register the token supplied in the slash command post against an incoming webhook url.
+            When the slash command comes in, we simply lookup the webhook url and use it to write the meme back into the Slack channel it came from.
           </aside>
 				</section>
         
