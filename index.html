@@ -44,8 +44,13 @@
 			<div class="slides">
 				<section>
 					<h2>Practical Pedestal/Swagger: Slack integration</h2>
-          <img style="max-height: 300px" src="images/doge-patterns-useful.jpg"/>
-          <p>
+          <img style="max-height: 250px" src="images/doge-patterns-useful.jpg"/>
+          <p style="margin-top: 0;">
+            <a class="slacky-link" target="_blank" href="https://slacky-server.herokuapp.com/">
+              <img class="logo" src="images/slacky-icon.png"/>
+              slacky-server.herokuapp.com
+            </a>
+            <br/>
             <a class="github" target="_blank" href="https://github.com/oliyh/slacky">
               <img class="logo" src="images/github.png"/>
               oliyh/slacky
@@ -189,14 +194,30 @@
 				</section>
         
         <section>
-					<h2>Meme generation</h2>
-          <img class="stretch no-border" src="images/meme-handling.png"/>
-          <aside class="notes">
-            The MemeCaptain API calls return urls which can be polled until the operation is complete.
-            The meme image is hosted by MemeCaptain so the API returns a url to it.
-            It's complicated enough!
-          </aside>
-				</section>
+          <section data-transition="none">
+            <h2>Meme generation</h2>
+            <img class="stretch no-border" src="images/meme-handling-1.png"/>
+            <aside class="notes">
+              We parse the text into parts and then use the search term to find an appropriate template image on google
+            </aside>
+          </section>
+          <section data-transition="none">
+            <h2>Meme generation</h2>
+            <img class="stretch no-border" src="images/meme-handling-2.png"/>
+            <aside class="notes">
+              We send the url of the template to MemeCaptain which returns us a template id
+            </aside>
+          </section>
+          <section data-transition="none">
+            <h2>Meme generation</h2>
+            <img class="stretch no-border" src="images/meme-handling-3.png"/>
+            <aside class="notes">
+              We ask MemeCaptain to generate a meme based on the template id and the upper and lower text
+              MemeCaptain returns a url to the generated meme image
+              It's complicated enough!
+            </aside>
+          </section>
+        </section>
         
         <section>
 					<h2>Responding to Slack</h2>
@@ -210,21 +231,63 @@
 				</section>
         
         <section>
-					<h2>Authentication interceptor</h2>
-					<p>
-						Keep the main handler simple by separating authentication logic into its own interceptor
-					</p>
+          <h2>Authentication interceptor</h2>
+          <pre class="stretch"><code class="hljs" data-trim contenteditable>
+(swagger/defbefore authenticate-slack-call
+  {:description "Ensures caller has registered an incoming webhook"
+   :parameters {:formData {:token s/Str}}
+   :responses {403 {}}}
+  [{:keys [request response] :as context}]
+
+  (let [db (:db-connection request)
+        token (get-in request [:form-params :token])
+        account (accounts/lookup-slack-account db token)]
+    (if-let [webhook-url (:key account)]
+      (update context :request merge {::slack-webhook-url webhook-url
+                                      ::account-id (:id account)})
+      (-> (terminate context)
+          (assoc :response
+            {:status 403
+             :headers {}
+             :body (str "You are not permitted to use this service.\n"
+                        "Please register your token '" token
+                        "'at https://slacky-server.herokuapp.com")})))))
+            </code></pre>
+          <aside class="notes">
+            Here I create an interceptor that deals completely with all the authentication requirements.
+            It doesn't pollute my handler, it can either decide it's authenticated and provide the webhook url to the handler,
+            or it's not authenticated and we return a 403 and an error message.
+            
+            It all gets merged into the Swagger definition too so clients know that a 403 might be returned.
+          </aside>
 				</section>
 
         <section>
-					<h2>Self-migration database component</h2>
+					<h2>Self-migrating database</h2>
 					<p>
-						Keeps 1-click deploy even when there are database migrations etc
+            Ensure database is migrated before use
 					</p>
+          <pre><code class="hljs" data-trim contenteditable>
+(defn- migrate-db [url]
+    (joplin/migrate-db
+     {:db {:type :jdbc :url url}
+      :migrator "migrators/jdbc"}))
+      
+(defn create-db-connection [url]
+  (migrate-db url)
+
+  (condp re-find url
+    #":postgresql:" (pool "org.postgresql.Driver" url))
+    #":h2:" (pool "org.h2.Driver" url))</code></pre>
           <a class="github" href="https://github.com/juxt/joplin">
             <img class="logo" src="images/github.png"/>
             juxt/joplin
           </a>
+          <aside class="notes">
+            Production deployments become easier, no danger of running code that is incompatible with database
+            Joplin takes care of ensuring the migrations are applied
+            Database migrations compatible with both postgres (production) and H2 (tests)
+          </aside>
 				</section>
 
         <section>
@@ -232,15 +295,83 @@
 					<p>
 						Decomplect interceptor scope from ordering
 					</p>
+          <pre><code class="hljs" data-trim contenteditable>
+(defroutes routes
+  ["/api" ^:interceptors [rate-limiter]
+    ["/slack" ^:interceptors [slack-auth] ...]
+    ["/hipchat" ^:interceptors [hipchat-auth] ...]])</code></pre>
           <a class="github" href="https://github.com/oliyh/angel-interceptor">
             <img class="logo" src="images/github.png"/>
             oliyh/angel-interceptor
           </a>
-
+          <aside class="notes">
+            Consider extending Slacky to another chat service, Hipchat - we add another endpoint with a hipchat-auth interceptor
+            Consider also wanting to limit the rate at which each account can access the API, and adding a general purpose interceptor on the API root
+            In this instance, the rate limiter will need an account id to determine whether to allow the request or not, but it runs before the
+            authorisation interceptors which provide the account id.
+            This is normal pedestal behaviour but it complects the scope of the interceptor with the order.
+          </aside>
 				</section>
 
+        <section>
+					<h2>Angel interceptor</h2>
+          <pre><code class="hljs" data-trim contenteditable>
+(require '[angel.interceptor :as angel])
 
+(defroutes routes
+  ["/api" ^:interceptors [(angel/requires rate-limiter :account)]
+    ["/slack" ^:interceptors 
+              [(angel/provides slack-auth :account)] ...]
+    ["/hipchat" ^:interceptors 
+                [(angel/provides hipchat-auth :account)] ...]])</code></pre>
+          <pre class="fragment"><code class="hljs" data-trim contenteditable>
+(def service
+  (angel/satisfy
+    {:io.pedestal.http/routes routes}))</code></pre>
+          <a class="github" href="https://github.com/oliyh/angel-interceptor">
+            <img class="logo" src="images/github.png"/>
+            oliyh/angel-interceptor
+          </a>
+          <aside class="notes">
+            Here we declare the relationship between the interceptors and then simply run the "satisfy" function over the pedestal service map
+            This will reorder the interceptors for each route without affecting their scope, so that the rate-limiter will always have an account-id to work with
+            This is a new library you can get on Github, it does just enough at the moment for this use case but you may find it useful
+          </aside>
+				</section>
 
+        <section>
+					<h2>Slacky</h2>
+					<!-- <img class="stretch no-border" src="images/slacky-logo.png"/> -->
+          <video id="demo-video" class="stretch" controls>
+            <source data-src="video/slacky-demo.mp4" type="video/mp4">
+          </video> 
+          <br/>
+          <a class="slacky-link" target="_blank" href="https://slacky-server.herokuapp.com/">
+            <img class="logo" src="images/slacky-icon.png"/>
+            slacky-server.herokuapp.com
+          </a>
+          <aside class="notes">
+            The end result is a simple service with self contained functions
+            Simple deployment to Heroku makes it available for the world to use
+            (Click link and show them the front page)
+          </aside>
+				</section>
+        
+        <section>
+					<h2>Slacky</h2>
+					<video class="stretch" controls>
+            <source src="video/epic-memes.mp4" type="video/mp4">
+          </video> 
+          <br/>
+          <a class="slacky-link" target="_blank" href="https://slacky-server.herokuapp.com/">
+            <img class="logo" src="images/slacky-icon.png"/>
+            slacky-server.herokuapp.com
+          </a>
+          <aside class="notes">
+            Other features: animated memes, register templates (time for this?)
+          </aside>
+				</section>
+        
 			</div>
 
 		</div>

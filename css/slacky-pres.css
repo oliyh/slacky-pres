@@ -8,6 +8,16 @@ a.github {
     font-family: monospace;
 }
 
+.slacky-link img.logo, .slacky-link:hover img.logo {
+    vertical-align: middle;
+    border: 0;
+    background: none;
+}
+
+a.slacky-link {
+    
+}
+
 img {
   max-width: 100%;
   max-height: 100%;
