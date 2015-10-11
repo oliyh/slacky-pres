@@ -295,12 +295,12 @@
                         "'at https://slacky-server.herokuapp.com")})))))
             </code></pre>
           <aside class="notes">
-            You might think I will have to complicate my handler with the webhook lookup, deal with error messages for unauthenticated users etc. Not so!
-            Here I create an interceptor that deals completely with all the authentication requirements.
-            It doesn't pollute my handler, it can either decide it's authenticated and provide the webhook url to the handler,
-            or it's not authenticated and we return a 403 and an error message.
-
-            It all gets merged into the Swagger definition too so clients know that a 403 might be returned.
+            <ul>
+              <li>I need to either return a 403 unauthorised or provide the webhook url to my handler</li>
+              <li>I don't want to pollute my handler with this logic</li>
+              <li>This interceptor handles that flow completely and keeps my handler agnostic of databases, tokens etc</li>
+              <li>It all gets merged into the Swagger definition too so clients know a 403 might be returned</li>
+            </ul>
           </aside>
 				</section>
 
@@ -326,11 +326,14 @@
             juxt/joplin
           </a>
           <aside class="notes">
-            So if I have a database now, how do I keep it migrated up to date? Command line tools, deploy scripts?
-            No, I just run an idempotent migration every time I connect to it.
-            Production deployments become easier, no danger of running code that is incompatible with database
-            Joplin takes care of ensuring the migrations are applied
-            Database migrations compatible with both postgres (production) and H2 (tests)
+            <ul>
+              <li>So now I need a database, with at least some tables with names and columns that match my code</li>
+              <li>Sometimes for a new feature the tables and columns have to change, how do I keep my database and the code in sync?</li>
+              <li>Database migrations, run idempotently and handled by Joplin</li>
+              <li>Run them every time we connect to the database</li>
+              <li>No defensive code needed, no command line tools, release scripts etc</li>
+              <li>Code and database always in sync</li>
+            </ul>
           </aside>
 				</section>
 
@@ -349,11 +352,11 @@
             oliyh/angel-interceptor
           </a>
           <aside class="notes">
-            Consider extending Slacky to another chat service, Hipchat - we add another endpoint with a hipchat-auth interceptor.
-            Consider also wanting to limit the rate at which each account can access the API, and adding a general purpose interceptor on the API root.
-            In this instance, the rate limiter will need an account id to determine whether to allow the request or not, but it runs before the
-            authorisation interceptors which provide the account id.
-            This is normal pedestal behaviour but it complects the scope of the interceptor with the order.
+            <li>Consider extending Slacky to another chat service which authenticates a different way (hipchat-auth interceptor)</li>
+            <li>Consider also wanting a rate limiter which applies to all users of the API</li>
+            <li>The rate-limiter interceptor needs an account-id to track how much each account uses the service</li>
+            <li>Pedestal will run this interceptor before the authentication interceptors</li>
+            <li>It complects scope with order of execution</li>
           </aside>
 				</section>
 
