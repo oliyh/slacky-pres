@@ -59,6 +59,14 @@
 					<p>
 						<small>Created by <a target="_blank" href="http://oliy.co.uk">Oliver Hine</a> / <a target="_blank" href="http://twitter.com/oliyh">@oliyh</a></small>
 					</p>
+          <aside class="notes">
+            <ul>
+              <li>Oliver Hine</li>
+              <li>JUXTer</li>
+              <li>Background in banks, OnTheMarket</li>
+              <li>Patterns for keeping things simple</li>
+            </ul>
+          </aside>
 				</section>
 
 				<section>
@@ -68,22 +76,30 @@
 					</p>
           <img class="stretch" src="images/slack-chat.png"/>
           <aside class="notes">
-            I will firstly introduce Slack briefly for anyone unfamiliar with it.
-            Slack is a chat service which has gained popular adoption among software organisations including Clojurians and JUXT - it feels friendly for developers with markdown-like formatting.
-            Images, videos and other media can be embedded directly into the chat window giving a richer experience.
-            It also has a comprehensive API for third party extensions. Many already exist, for Twitter, Github etc, but one was missing...
+            <ul>
+              <li>Introduce Slack</li>
+              <li>Chat service which feels developer friendly</li>
+              <li>Can do everything with a keyboard</li>
+              <li>Inline code, images, videos, link previews</li>
+              <li>API for extensions</li>
+            </ul>
           </aside>
 				</section>
-        
+
         <section>
 					<h2>Memes!</h2>
           <p>
-            <em>an idea, behavior, style, or usage that spreads from person to person within a culture</em>
+            <em>"an idea, behavior, style, or usage that spreads from person to person within a culture"</em>
+          </p>
+          <p>
+            <em>"also cats"</em>
           </p>
           <img src="images/simple-made-complex-meme.png"/>
           <aside class="notes">
-            We as a team got quite addicted to memes via the Sassy bot in Hipchat, which had a nice simple text-based interface.
-            Slack however had no such feature, so I set out to build one.
+            <ul>
+              <li>Previously in Hipchat had a bot which allowed inline meme generation</li>
+              <li>Slack didn't have one</li>
+            </ul>
           </aside>
 				</section>
 
@@ -103,9 +119,12 @@
   text=rich hickey | simple | made complex</code></pre>
           <span><a target="_blank" href="https://api.slack.com/slash-commands">api.slack.com/slash-commands</a></span>
           <aside class="notes">
-            Slack allows you to register a custom command beginning with a slash which will be captured and sent to an HTTP endpoint of your choice.
-            The documentation tells you that the request will look like this one here.
-            I wanted to implement this endpoint but I didn't want to spend time writing a webserver or implementing REST, dealing with JSON deserialisation and error handling - I just wanted to get started on writing the handler.
+            <ul>
+              <li>One type of extension is called a Slash command - like IRC</li>
+              <li>Captures command and sends to HTTP endpoint</li>
+              <li>Documentation tells you what it will look like</li>
+              <li>Want to implement this doc now - not all the bits in between (deserialisation, validation etc)</li>
+            </ul>
           </aside>
 				</section>
 
@@ -131,12 +150,12 @@
             <div style="width: 57%">
               <pre><code class="hljs" data-trim contenteditable>
 (swagger/defhandler slack-meme
- {:summary "Responds asynchonously to 
+ {:summary "Responds asynchonously to
             Slash commands from Slack"
   :parameters {:formData SlackRequest}
   :responses {200 {:schema MemeUrl}}}
  [{:keys [form-params] :as request}]
- 
+
  (let [text (:text form-params)]
    {:status 200
     :body (meme/generate-meme text)))
@@ -147,14 +166,19 @@
             <img class="logo" src="images/github.png"/>
             frankiesardo/pedestal-swagger
           </a>
-          
+
           <aside class="notes">
-            This is exactly what I wanted - I define a schema which describes the request I expect, and a handler which expects that schema.
-            No deserialisation, no validation, I can just trust that the data will fit that schema when it hits my handler.
-            Also note it's nicely documented in the code.
+            <ul>
+              <li>pedestal-swagger lets me do just that</li>
+              <li>Define schema of request and attach to a handler</li>
+              <li>pedestal-swagger does everything in between to ensure handler only knows about happy path</li>
+              <li>Handler not complicated by error handling</li>
+              <li>Nicely documented in code</li>
+              <li>Saves 75% of code <em>(made that up)</em></li>
+            </ul>
           </aside>
         </section>
-        
+
         <section>
           <h2>Routing and interceptors</h2>
           <pre class="stretch"><code class="hljs" data-trim contenteditable>
@@ -178,10 +202,13 @@
      ["/swagger.json" {:get [(swagger/swagger-json)]}]
      ["/*resource" {:get [(swagger/swagger-ui)]}]]]])
           </code></pre>
-            
+
           <aside class="notes">
-            This is the routing table, with some interceptors and a couple of endpoints provided by pedestal-swagger.
-            These will take care of deserialising, validating and coercing requests for me and ensuring my handler can stay simple and only worry about the happy path.
+            <ul>
+              <li>Routing table</li>
+              <li>Batteries included interceptors that deal with unpleasant bits</li>
+              <li>What is all that metadata for?</li>
+            </ul>
           </aside>
         </section>
 
@@ -189,47 +216,61 @@
 					<h2>Swagger UI</h2>
           <img class="stretch no-border" src="images/swagger-ui.png"/>
           <aside class="notes">
-            The necessary data for the Swagger UI is generated for us by pedestal-swagger, giving us the super-useful Swagger UI for free!
+            <ul>
+              <li>Swagger UI</li>
+              <li>Driven by JSON schema</li>
+              <li>Brilliant for documenting APIs and trying them out</li>
+              <li>Provided for free by pedestal-swagger</li>
+            </ul>
           </aside>
 				</section>
-        
+
         <section>
           <section data-transition="none">
             <h2>Meme generation</h2>
             <img class="stretch no-border" src="images/meme-handling-1.png"/>
             <aside class="notes">
-              We parse the text into parts and then use the search term to find an appropriate template image on google
+              <ul>
+                <li>Quickly cover what we do with a meme request</li>
+                <li>Parse using regex</li>
+                <li>Send search term to google to find template image</li>
+              </ul>
             </aside>
           </section>
           <section data-transition="none">
             <h2>Meme generation</h2>
             <img class="stretch no-border" src="images/meme-handling-2.png"/>
             <aside class="notes">
-              We send the url of the template to MemeCaptain which returns us a template id
+              <ul>
+                <li>Send image url to MemeCaptain which returns us a template id</li>
+              </ul>
             </aside>
           </section>
           <section data-transition="none">
             <h2>Meme generation</h2>
             <img class="stretch no-border" src="images/meme-handling-3.png"/>
             <aside class="notes">
-              We ask MemeCaptain to generate a meme based on the template id and the upper and lower text
-              MemeCaptain returns a url to the generated meme image
-              It's complicated enough!
+              <ul>
+                <li>Ask MemeCaptain to generate meme using template id, upper and lower text</li>
+                <li>Returns a url to meme</li>
+                <li>Complicated enough!</li>
             </aside>
           </section>
         </section>
-        
+
         <section>
 					<h2>Responding to Slack</h2>
 					<img class="stretch no-border" src="images/authentication-requirement.png"/>
           <span><a target="_blank" href="https://api.slack.com/incoming-webhooks">api.slack.com/incoming-webhooks</a></span>
           <aside class="notes">
-            To write back in to Slack requires an incoming webhook URL unique to the team.
-            To support multiple teams we register the token supplied in the slash command post against an incoming webhook url.
-            When the slash command comes in, we simply lookup the webhook url and use it to write the meme back into the Slack channel it came from.
+            <ul>
+              <li>Need a webhook url to send a message to a particular channel/team in Slack</li>
+              <li>Can map the unique token in Slash command post to a webhook url for response</li>
+              <li>We'll need a database to store these things</li>
+            </ul>
           </aside>
 				</section>
-        
+
         <section>
           <h2>Authentication interceptor</h2>
           <pre class="stretch"><code class="hljs" data-trim contenteditable>
@@ -254,10 +295,11 @@
                         "'at https://slacky-server.herokuapp.com")})))))
             </code></pre>
           <aside class="notes">
+            You might think I will have to complicate my handler with the webhook lookup, deal with error messages for unauthenticated users etc. Not so!
             Here I create an interceptor that deals completely with all the authentication requirements.
             It doesn't pollute my handler, it can either decide it's authenticated and provide the webhook url to the handler,
             or it's not authenticated and we return a 403 and an error message.
-            
+
             It all gets merged into the Swagger definition too so clients know that a 403 might be returned.
           </aside>
 				</section>
@@ -272,7 +314,7 @@
     (joplin/migrate-db
      {:db {:type :jdbc :url url}
       :migrator "migrators/jdbc"}))
-      
+
 (defn create-db-connection [url]
   (migrate-db url)
 
@@ -284,6 +326,8 @@
             juxt/joplin
           </a>
           <aside class="notes">
+            So if I have a database now, how do I keep it migrated up to date? Command line tools, deploy scripts?
+            No, I just run an idempotent migration every time I connect to it.
             Production deployments become easier, no danger of running code that is incompatible with database
             Joplin takes care of ensuring the migrations are applied
             Database migrations compatible with both postgres (production) and H2 (tests)
@@ -305,8 +349,8 @@
             oliyh/angel-interceptor
           </a>
           <aside class="notes">
-            Consider extending Slacky to another chat service, Hipchat - we add another endpoint with a hipchat-auth interceptor
-            Consider also wanting to limit the rate at which each account can access the API, and adding a general purpose interceptor on the API root
+            Consider extending Slacky to another chat service, Hipchat - we add another endpoint with a hipchat-auth interceptor.
+            Consider also wanting to limit the rate at which each account can access the API, and adding a general purpose interceptor on the API root.
             In this instance, the rate limiter will need an account id to determine whether to allow the request or not, but it runs before the
             authorisation interceptors which provide the account id.
             This is normal pedestal behaviour but it complects the scope of the interceptor with the order.
@@ -320,9 +364,9 @@
 
 (defroutes routes
   ["/api" ^:interceptors [(angel/requires rate-limiter :account)]
-    ["/slack" ^:interceptors 
+    ["/slack" ^:interceptors
               [(angel/provides slack-auth :account)] ...]
-    ["/hipchat" ^:interceptors 
+    ["/hipchat" ^:interceptors
                 [(angel/provides hipchat-auth :account)] ...]])</code></pre>
           <pre class="fragment"><code class="hljs" data-trim contenteditable>
 (def service
@@ -344,7 +388,7 @@
 					<!-- <img class="stretch no-border" src="images/slacky-logo.png"/> -->
           <video id="demo-video" class="stretch" controls>
             <source data-src="video/slacky-demo.mp4" type="video/mp4">
-          </video> 
+          </video>
           <br/>
           <a class="slacky-link" target="_blank" href="https://slacky-server.herokuapp.com/">
             <img class="logo" src="images/slacky-icon.png"/>
@@ -356,12 +400,12 @@
             (Click link and show them the front page)
           </aside>
 				</section>
-        
+
         <section>
 					<h2>Slacky</h2>
 					<video class="stretch" controls>
             <source src="video/epic-memes.mp4" type="video/mp4">
-          </video> 
+          </video>
           <br/>
           <a class="slacky-link" target="_blank" href="https://slacky-server.herokuapp.com/">
             <img class="logo" src="images/slacky-icon.png"/>
@@ -371,7 +415,7 @@
             Other features: animated memes, register templates (time for this?)
           </aside>
 				</section>
-        
+
 			</div>
 
 		</div>
