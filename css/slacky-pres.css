@@ -2,6 +2,7 @@
     vertical-align: middle;
     border: 0;
     background: none;
+    box-shadow: none;
 }
 
 a.github {
@@ -12,6 +13,7 @@ a.github {
     vertical-align: middle;
     border: 0;
     background: none;
+    box-shadow: none;
 }
 
 a.slacky-link {
@@ -37,4 +39,5 @@ img {
 .reveal img.no-border {
   border: 0;
   background: none;
+  box-shadow: none;
 }

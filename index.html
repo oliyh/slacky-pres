@@ -57,7 +57,9 @@
             </a>
           </p>
 					<p>
-						<small>Created by <a target="_blank" href="http://oliy.co.uk">Oliver Hine</a> / <a target="_blank" href="http://twitter.com/oliyh">@oliyh</a></small>
+						<small>
+              Created by <a target="_blank" href="http://oliy.co.uk">Oliver Hine</a> / <a target="_blank" href="http://twitter.com/oliyh">@oliyh</a>
+            </small>
 					</p>
           <aside class="notes">
             <ul>
@@ -339,18 +341,11 @@
 
         <section>
 					<h2>Extending to other services</h2>
-					<p>
-						Decomplect interceptor scope from ordering
-					</p>
           <pre><code class="hljs" data-trim contenteditable>
 (defroutes routes
   ["/api" ^:interceptors [rate-limiter]
     ["/slack" ^:interceptors [slack-auth] ...]
     ["/hipchat" ^:interceptors [hipchat-auth] ...]])</code></pre>
-          <a class="github" href="https://github.com/oliyh/angel-interceptor">
-            <img class="logo" src="images/github.png"/>
-            oliyh/angel-interceptor
-          </a>
           <aside class="notes">
             <li>Consider extending Slacky to another chat service which authenticates a different way (hipchat-auth interceptor)</li>
             <li>Consider also wanting a rate limiter which applies to all users of the API</li>
@@ -362,6 +357,9 @@
 
         <section>
 					<h2>Angel interceptor</h2>
+          <p>
+						Decomplect interceptor scope from ordering
+					</p>
           <pre><code class="hljs" data-trim contenteditable>
 (require '[angel.interceptor :as angel])
 
@@ -381,9 +379,11 @@
           </a>
           <aside class="notes">
             <ul>
-            Here we declare the relationship between the interceptors and then simply run the "satisfy" function over the pedestal service map
-            This will reorder the interceptors for each route without affecting their scope, so that the rate-limiter will always have an account-id to work with
-            This is a new library you can get on Github, it does just enough at the moment for this use case but you may find it useful
+              <li>Declare relationships between interceptors</li>
+              <li>angel/satisfy will reorder them without affecting their scope</li>
+              <li>Decomplects scope from order of execution</li>
+              <li>New library available on my Github</li>
+            </ul>
           </aside>
 				</section>
 
@@ -399,14 +399,16 @@
             slacky-server.herokuapp.com
           </a>
           <aside class="notes">
-            The end result is a simple service with self contained functions
-            Simple deployment to Heroku makes it available for the world to use
-            (Click link and show them the front page)
+            <ul>
+              <li>Simple service, self-contained functions</li>
+              <li>Heroku deployed directly from Github</li>
+              <li>Show them website if time or demo from Slack (show help function / custom templates?)</li>
+            </ul>
           </aside>
 				</section>
 
         <section>
-					<h2>Slacky</h2>
+					<h2>Epic memes</h2>
 					<video class="stretch" controls>
             <source src="video/epic-memes.mp4" type="video/mp4">
           </video>
@@ -415,8 +417,17 @@
             <img class="logo" src="images/slacky-icon.png"/>
             slacky-server.herokuapp.com
           </a>
+          <br/>
+          <a class="github" target="_blank" href="https://github.com/oliyh/slacky">
+            <img class="logo" src="images/github.png"/>
+            oliyh/slacky
+          </a>
           <aside class="notes">
-            Other features: animated memes, register templates (time for this?)
+            <ul>
+              <li>Nothing a bit of Jean-Claude and Enya can't improve on</li>
+              <li>Browser plugins on the way</li>
+              <li>Available as a service or on Github</li>
+            </ul>
           </aside>
 				</section>
 
