@@ -134,7 +134,7 @@
           </p>
           <div class="col2">
             <div style="width: 43%">
-              <pre><code class="hljs" data-trim contenteditable>
+              <pre><code class="hljs" data-trim>
   (s/defschema SlackRequest
  {(req :token)        s/Str
   (req :team_id)      s/Str
@@ -147,7 +147,7 @@
   (req :text)         s/Str})</code></pre>
             </div>
             <div style="width: 57%">
-              <pre><code class="hljs" data-trim contenteditable>
+              <pre><code class="hljs" data-trim>
 (swagger/defhandler slack-meme
  {:summary "Responds asynchonously to
             Slash commands from Slack"
@@ -180,7 +180,7 @@
 
         <section>
           <h2>Routing and interceptors</h2>
-          <pre class="stretch"><code class="hljs" data-trim contenteditable>
+          <pre class="stretch"><code class="hljs" data-trim>
 (swagger/defroutes api-routes
   {:info {:title "Slacky"
           :description "Memes and more for Slack"
@@ -272,7 +272,7 @@
 
         <section>
           <h2>Authentication interceptor</h2>
-          <pre class="stretch"><code class="hljs" data-trim contenteditable>
+          <pre class="stretch"><code class="hljs" data-trim>
 (swagger/defbefore authenticate-slack-call
   {:description "Ensures caller has registered an incoming webhook"
    :parameters {:formData {:token s/Str}}
@@ -308,7 +308,7 @@
 					<p>
             Ensure database is migrated before use
 					</p>
-          <pre><code class="hljs" data-trim contenteditable>
+          <pre><code class="hljs" data-trim>
 (defn- migrate-db [url]
     (joplin/migrate-db
      {:db {:type :jdbc :url url}
@@ -338,7 +338,7 @@
 
         <section>
 					<h2>Extending to other services</h2>
-          <pre><code class="hljs" data-trim contenteditable>
+          <pre><code class="hljs" data-trim>
 (defroutes routes
   ["/api" ^:interceptors [rate-limiter]
     ["/slack" ^:interceptors [slack-auth] ...]
@@ -357,7 +357,7 @@
           <p>
 						Decomplect interceptor scope from ordering
 					</p>
-          <pre><code class="hljs" data-trim contenteditable>
+          <pre><code class="hljs" data-trim>
 (require '[angel.interceptor :as angel])
 
 (defroutes routes
@@ -366,7 +366,7 @@
               [(angel/provides slack-auth :account)] ...]
     ["/hipchat" ^:interceptors
                 [(angel/provides hipchat-auth :account)] ...]])</code></pre>
-          <pre class="fragment"><code class="hljs" data-trim contenteditable>
+          <pre class="fragment"><code class="hljs" data-trim>
 (def service
   (angel/satisfy
     {:io.pedestal.http/routes routes}))</code></pre>
