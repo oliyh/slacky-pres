@@ -338,7 +338,7 @@
 				</section>
 
         <section>
-					<h2>Angel interceptor</h2>
+					<h2>Extending to other services</h2>
 					<p>
 						Decomplect interceptor scope from ordering
 					</p>
@@ -380,6 +380,7 @@
             oliyh/angel-interceptor
           </a>
           <aside class="notes">
+            <ul>
             Here we declare the relationship between the interceptors and then simply run the "satisfy" function over the pedestal service map
             This will reorder the interceptors for each route without affecting their scope, so that the rate-limiter will always have an account-id to work with
             This is a new library you can get on Github, it does just enough at the moment for this use case but you may find it useful
