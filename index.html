@@ -66,7 +66,7 @@
               <li>Oliver Hine</li>
               <li>JUXTer</li>
               <li>Background in banks, OnTheMarket</li>
-              <li>Patterns for keeping things simple</li>
+              <li>Patterns for keeping things simple in a small REST service</li>
             </ul>
           </aside>
 				</section>
@@ -80,10 +80,11 @@
           <aside class="notes">
             <ul>
               <li>Introduce Slack</li>
-              <li>Chat service which feels developer friendly</li>
+              <li>Developer-friendly chat service</li>
               <li>Can do everything with a keyboard</li>
               <li>Inline code, images, videos, link previews</li>
               <li>API for extensions</li>
+              <li>Many extensions already exist for Twitter, Github etc but one missing...</li>
             </ul>
           </aside>
 				</section>
@@ -97,7 +98,7 @@
           <aside class="notes">
             <ul>
               <li>Previously in Hipchat had a bot which allowed inline meme generation</li>
-              <li>Slack didn't have one</li>
+              <li>Moved to Slack for other reasons but found we missed the memes</li>
             </ul>
           </aside>
 				</section>
@@ -219,6 +220,7 @@
               <li>Swagger UI</li>
               <li>Driven by JSON schema</li>
               <li>Brilliant for documenting APIs and trying them out</li>
+              <li>JSON schema also useful for offshore teams / 3rd parties to code against</li>
               <li>Provided for free by pedestal-swagger</li>
             </ul>
           </aside>
@@ -265,7 +267,7 @@
             <ul>
               <li>Need a webhook url to send a message to a particular channel/team in Slack</li>
               <li>Can map the unique token in Slash command post to a webhook url for response</li>
-              <li>We'll need a database to store these things</li>
+              <li>We'll need something to deal with matching the token to the right webhook url</li>
             </ul>
           </aside>
 				</section>
@@ -332,6 +334,8 @@
               <li>Run them every time we connect to the database</li>
               <li>No defensive code needed, no command line tools, release scripts etc</li>
               <li>Code and database always in sync</li>
+              <li>Note code here deals with both H2 and postgres, one click clone and test</li>
+              <li>Joplin a JUXT library, used in production, handles many kinds of store inc ES, JDBC and more</li>
             </ul>
           </aside>
 				</section>
@@ -397,9 +401,13 @@
           </a>
           <aside class="notes">
             <ul>
+              <li>What do we have now?</li>
               <li>Simple service, self-contained functions</li>
-              <li>Heroku deployed directly from Github</li>
-              <li>Show them website if time or demo from Slack (show help function / custom templates?)</li>
+              <li>One click dev environment</li>
+              <li>One click deploy - Heroku deployed directly from Github</li>
+              <li>Existing functionality - other templates, and register custom templates<li>
+              <li>Show them demo from Slack (show help function / custom templates?)</li>
+              <li>Show them website?</li>
             </ul>
           </aside>
 				</section>
@@ -421,9 +429,11 @@
           </a>
           <aside class="notes">
             <ul>
-              <li>Nothing a bit of Jean-Claude and Enya can't improve on</li>
-              <li>Browser plugins on the way</li>
+              <li>What's next?</li>
+              <li>Custom template rollout</li>
+              <li>Browser plugins on the way - should be easily incorporated</li>
               <li>Available as a service or on Github</li>
+              <li>TV advertising - endorsements from Jean-Claude and Enya</li>
             </ul>
           </aside>
 				</section>
