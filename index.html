@@ -99,6 +99,9 @@
             <ul>
               <li>Previously in Hipchat had a bot which allowed inline meme generation</li>
               <li>Moved to Slack for other reasons but found we missed the memes</li>
+              <li>Previous slide was top secret JUXT conversation about logging</li>
+              <li>Frankie wanted to remind us of Rich Hickey's catchphrase "Simple made complex"</li>
+              <li>So what did he do?</li>
             </ul>
           </aside>
 				</section>
@@ -171,7 +174,8 @@
             <ul>
               <li>pedestal-swagger lets me do just that</li>
               <li>Define schema of request and attach to a handler</li>
-              <li>pedestal-swagger does everything in between to ensure handler only knows about happy path</li>
+              <li>pedestal-swagger does everything in between to ensure the Swagger contract is met</li>
+              <li>Handler only knows about happy path</li>
               <li>Handler not complicated by error handling</li>
               <li>Nicely documented in code</li>
               <li>Saves 75% of code <em>(made that up)</em></li>
@@ -348,11 +352,13 @@
     ["/slack" ^:interceptors [slack-auth] ...]
     ["/hipchat" ^:interceptors [hipchat-auth] ...]])</code></pre>
           <aside class="notes">
-            <li>Consider extending Slacky to another chat service which authenticates a different way (hipchat-auth interceptor)</li>
-            <li>Consider also wanting a rate limiter which applies to all users of the API</li>
-            <li>The rate-limiter interceptor needs an account-id to track how much each account uses the service</li>
-            <li>Pedestal will run this interceptor before the authentication interceptors</li>
-            <li>It complects scope with order of execution</li>
+            <ul>
+              <li>Consider extending Slacky to another chat service which authenticates a different way (hipchat-auth interceptor)</li>
+              <li>Consider also wanting a rate limiter which applies to all users of the API</li>
+              <li>The rate-limiter interceptor needs an account-id to track how much each account uses the service</li>
+              <li>Pedestal will run this interceptor before the authentication interceptors</li>
+              <li>It complects scope with order of execution</li>
+            </ul>
           </aside>
 				</section>
 
@@ -405,7 +411,7 @@
               <li>Simple service, self-contained functions</li>
               <li>One click dev environment</li>
               <li>One click deploy - Heroku deployed directly from Github</li>
-              <li>Existing functionality - other templates, and register custom templates<li>
+              <li>Existing functionality - other templates, and register custom templates</li>
               <li>Show them demo from Slack (show help function / custom templates?)</li>
               <li>Show them website?</li>
             </ul>
@@ -432,7 +438,8 @@
               <li>What's next?</li>
               <li>Custom template rollout</li>
               <li>Browser plugins on the way - should be easily incorporated</li>
-              <li>Available as a service or on Github</li>
+              <li>Available as a service - register your Slack at this link</li>
+              <li>Available on GitHub</li>
               <li>TV advertising - endorsements from Jean-Claude and Enya</li>
             </ul>
           </aside>
